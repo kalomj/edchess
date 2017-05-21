@@ -4,12 +4,28 @@ using UnityEngine;
 
 public class Level : MonoBehaviour {
 
-    Grid grid;
+    public Grid GridTemplate;
+    public Grid GridInstance;
 
-	// Use this for initialization
-	void Start () {
-        grid = new Grid();
-	}
+    public int level = 0;
+
+    private void Awake()
+    {
+        if (GridTemplate == null)
+        {
+            GridTemplate = GetComponentInParent<GameBoard>().GridTemplate;  
+        }
+
+        GridInstance = Instantiate(GridTemplate);
+        GridInstance.parentLvl = this;
+    }
+
+    // Use this for initialization
+    void Start () {
+
+        
+
+    }
 	
 	// Update is called once per frame
 	void Update () {
