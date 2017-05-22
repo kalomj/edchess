@@ -59,8 +59,24 @@ public class Grid : MonoBehaviour {
         
     }
 
+    /// <summary>
+    /// Gets the space, returns null of no legal space is indexed by the location
+    /// </summary>
+    /// <param name="row">The row number.</param>
+    /// <param name="col">The column number.</param>
+    /// <returns></returns>
     public Space GetSpace(int row, int col)
     {
+        if(row >= rows || col >= cols)
+        {
+            return null;
+        }
+
+        if(row < 0 || col < 0)
+        {
+            return null;
+        }
+
         return Spaces[row * rows + col];
     }
 	

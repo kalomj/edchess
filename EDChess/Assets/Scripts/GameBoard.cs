@@ -5,7 +5,8 @@ using UnityEngine;
 public class GameBoard : MonoBehaviour {
 
     public List<Level> Levels;
-    public List<Piece> Pieces;
+    public List<Piece> AlivePieces;
+    public List<Piece> DeadPieces;
 
     public Level LevelTemplate;
     public Grid GridTemplate;
@@ -15,14 +16,14 @@ public class GameBoard : MonoBehaviour {
     public Game game;
 
     public int numberLevels = 8;
-    
 
     System.Random sysRandom = new System.Random();
 
     private void Awake()
     {
         Levels = new List<Level>();
-        Pieces = new List<Piece>();
+        AlivePieces = new List<Piece>();
+        DeadPieces = new List<Piece>();
 
         for (int i = 0; i < numberLevels; i++)
         {
@@ -33,12 +34,19 @@ public class GameBoard : MonoBehaviour {
                 Levels.Add(lvl);
             }
 
-            for (int j = 0; j < GridTemplate.cols; j++)
+            IEnumerator<Piece.PieceType> ptEnumerator = GetPieceStartingTypeEnumerator(GridTemplate.cols);
+
+            for (int k = 0; k < 4; k++)
             {
-                for (int k = 0; k < 4; k++)
+                for (int j = 0; j < GridTemplate.cols; j++)
                 {
+                    if (ptEnumerator.MoveNext())
+                    {
+                        PieceTemplate.pieceType = ptEnumerator.Current;
+                    }
+
                     Piece piece = Instantiate(PieceTemplate);
-                    Pieces.Add(piece);
+                    AlivePieces.Add(piece); 
                 }
             }
         }
@@ -47,10 +55,9 @@ public class GameBoard : MonoBehaviour {
         PieceTemplate.GetComponent<MeshRenderer>().enabled = false;
     }
 
-    // Use this for initialization
     void Start () {
         IEnumerator<Space> spaceEnumerator = GetPieceStartingSpaceEnumerator();
-        foreach(Piece piece in Pieces)
+        foreach(Piece piece in AlivePieces)
         {
             if (spaceEnumerator.MoveNext())
             {
@@ -59,38 +66,26 @@ public class GameBoard : MonoBehaviour {
                 spaceEnumerator.Current.occupier = piece;
                 piece.space = spaceEnumerator.Current;
 
-                
-
                 if (piece.space.row < 2)
                 {
                     //p1 pieces
                     piece.SetTint(game.player1.PieceTint);
+                    piece.SetPlayer(game.player1);
                 }
                 else
                 {
                     //p2 pieces
                     piece.SetTint(game.player2.PieceTint);
+                    piece.SetPlayer(game.player2);
                 }
             }
         }
-
-        StartCoroutine("MovePieceEvent");
     }
 	
 	// Update is called once per frame
 	void Update () {
 		
 	}
-
-    private IEnumerator MovePieceEvent()
-    {
-        while (true)
-        {
-            yield return new WaitForSeconds(0.1f); // wait half a second
-            DoRandomMove();
-        }
-    }
-
 
     public IEnumerator<Space> GetPieceStartingSpaceEnumerator()
     {
@@ -108,33 +103,57 @@ public class GameBoard : MonoBehaviour {
         }
     }
 
-    public Space GetSpace(int level, int row, int col)
+    public IEnumerator<Piece.PieceType> GetPieceStartingTypeEnumerator(int cols)
     {
-        return Levels[level].GridInstance.GetSpace(row, col);
+        
+        Piece.PieceType[] special = { Piece.PieceType.rook, Piece.PieceType.knight, Piece.PieceType.bishop,
+                                      Piece.PieceType.queen, Piece.PieceType.king, Piece.PieceType.bishop,
+                                      Piece.PieceType.knight, Piece.PieceType.rook };
+
+        //return cols special pieces, then cols pawns, then cols pawns, then cols special pieces
+        for (int i = 0; i < cols; i++)
+        {
+            yield return special[i % special.Length];
+        }
+
+        for (int i = 0; i < cols*2; i++)
+        {
+            yield return Piece.PieceType.pawn;
+        }
+
+        for (int i = 0; i < cols; i++)
+        {
+            yield return special[i % special.Length];
+        }
     }
 
     /// <summary>
-    /// select a random piece, then select spaces at random until an unoccied space is found. swap the piece to the space.
+    /// Gets a space in the gameboard, returns null if the space is not legally indexed.
     /// </summary>
-    public void DoRandomMove()
+    /// <param name="level">The level of the chess board in 3D</param>
+    /// <param name="row">The row of the chess board</param>
+    /// <param name="col">The column of the chess board</param>
+    /// <returns></returns>
+    public Space GetSpace(int level, int row, int col)
     {
-        Piece piece = Pieces[sysRandom.Next(0, Pieces.Count)];
-        Space space;
-
-        do
+        if(level >= numberLevels || level < 0)
         {
-            space = GetRandomSpace();
+            return null;
         }
-        while (space.occupied);
 
-        Move(piece, space);
+        return Levels[level].GridInstance.GetSpace(row, col);
     }
 
-    private static void Move(Piece piece, Space space)
+    
+    public void Move(Piece piece, Space space)
     {
         if(space.occupied)
         {
-            throw new System.Exception("Cannot move into an occupied space.");
+            DeadPieces.Add(space.occupier);
+            AlivePieces.Remove(space.occupier);
+            space.occupier.enabled = false;
+            space.occupier.Alive = false;
+            
         }
 
         piece.transform.position = space.transform.position;
@@ -145,6 +164,11 @@ public class GameBoard : MonoBehaviour {
         space.occupied = true;
         space.occupier = piece;
         space.AnimateShell(.5f);
+    }
+
+    public void Move(Move move)
+    {
+        Move(move.piece, move.space);
     }
 
     public Space GetRandomSpace()

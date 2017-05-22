@@ -6,8 +6,11 @@ public class Player : MonoBehaviour {
 
     public Color PieceTint;
 
-	// Use this for initialization
-	void Start () {
+    public enum PlayerNumber { Player1, Player2 };
+    public PlayerNumber playerNumber;
+
+    // Use this for initialization
+    void Start () {
 		
 	}
 	
