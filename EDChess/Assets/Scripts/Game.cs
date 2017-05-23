@@ -9,7 +9,7 @@ public class Game : MonoBehaviour {
     public GameBoard gameBoard;
     public Camera mainCamera;
 
-    public float MoveTime = .1f;
+    public float MoveTime = 1f;
 
     System.Random sysRandom = new System.Random();
 
@@ -25,20 +25,34 @@ public class Game : MonoBehaviour {
 
     private IEnumerator MovePieceEvent()
     {
+        Move move;
+        yield return new WaitForSeconds(1f);
         while (true)
         {
+            move = GetRandomMove(player1);
             yield return new WaitForSeconds(MoveTime);
-            DoRandomMove(player1);
+            gameBoard.Move(move);
+
+            move = GetRandomMove(player2);
             yield return new WaitForSeconds(MoveTime);
-            DoRandomMove(player2);
+            gameBoard.Move(move);
 
         }
     }
 
+    public IEnumerator HighlightMoves(List<Move> moves)
+    {
+        for(int i = 0; i < moves.Count; i++)
+        {
+            moves[i].space.AnimateShell(MoveTime - i* MoveTime / moves.Count, Color.yellow);
+            yield return new WaitForSeconds(MoveTime/moves.Count);
+        }
+    }
+
     /// <summary>
-    /// select a random piece until a legal move is found. perform the move.
+    /// select a random piece until a legal list of moves is found. select a random move from the list.
     /// </summary>
-    public void DoRandomMove(Player player)
+    public Move GetRandomMove(Player player)
     {
         Piece piece;
         List<Move> moves = new List<Move>();
@@ -58,7 +72,9 @@ public class Game : MonoBehaviour {
             throw new System.Exception("no move found " + i + " " + gameBoard.AlivePieces.Count);
         }
 
-        gameBoard.Move(moves[sysRandom.Next(0,moves.Count)]);
+        piece.space.AnimateShell(MoveTime, Color.red);
+        StartCoroutine(HighlightMoves(moves));
+        return moves[sysRandom.Next(0,moves.Count)];
     }
 
     

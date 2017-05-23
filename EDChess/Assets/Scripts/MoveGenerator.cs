@@ -140,12 +140,38 @@ static class MoveGenerator
     {
         List<Move> moves = new List<Move>();
 
+        //king can move one space in any direction, so generate cartesian product of all possible directions
+        int[] rowDirections = { -1, 0, 1 };
+        int[] colDirections = { -1, 0, 1 };
+        int[] lvlDirections = { -1, 0, 1 };
+
+        foreach(int rowDirection in rowDirections)
+        {
+            foreach(int colDirection in colDirections)
+            {
+                foreach(int lvlDirection in lvlDirections)
+                {
+                    moves.AddRange(GetMovesInDirection(gameBoard, piece, lvlDirection, rowDirection, colDirection, 1).ToArray());
+                }
+            }
+        }
+
+        //TODO: castle move
+
         return moves;
     }
 
     private static List<Move> GetRookMoves(GameBoard gameBoard, Piece piece)
     {
         List<Move> moves = new List<Move>();
+
+        //rook can move straight forward, back, left, right, up, or down 
+        int[,] triplets = { { 0, 1, 0 }, { 0, -1, 0 }, { 0, 0, 1 }, { 0, 0, -1 }, { 1, 0, 0 }, { -1, 0, 0 } };
+
+        for(int i = 0; i < triplets.GetLength(0); i++)
+        {
+            moves.AddRange(GetMovesInDirection(gameBoard, piece, triplets[i,0], triplets[i,1], triplets[i,2]).ToArray());
+        }
 
         return moves;
     }
@@ -154,12 +180,42 @@ static class MoveGenerator
     {
         List<Move> moves = new List<Move>();
 
+        //knight moves 2 forward 1 left, 2 forward 1 right, 2 right 1 foward, 2 right 1 back, 2 left 1 forward, 2 left 1 back, 2 back 1 left, 2 back 1 right
+        //these moves can happen on the same level, 2 levels up, or 2 levels down only.
+        //rook can move straight forward, back, left, right, up, or down 
+        int[,] doublets = { { 2, 1 }, { 2, -1 }, { 1, 2 }, { 1, -2 }, { -1, 2 }, { -1, -2 }, { -2, 1 }, { -2, -1 } };
+        int[] levelDirections = { -2, 0, 2 };
+
+        foreach (int levelDirection in levelDirections)
+        {
+            for (int i = 0; i < doublets.GetLength(0); i++)
+            {
+                moves.AddRange(GetMovesInDirection(gameBoard, piece, levelDirection, doublets[i, 0], doublets[i, 1],  1).ToArray());
+            }
+        }
+
         return moves;
     }
 
     private static List<Move> GetQueenMoves(GameBoard gameBoard, Piece piece)
     {
         List<Move> moves = new List<Move>();
+
+        //queen can move one space in any direction, so generate cartesian product of all possible directions
+        int[] rowDirections = { -1, 0, 1 };
+        int[] colDirections = { -1, 0, 1 };
+        int[] lvlDirections = { -1, 0, 1 };
+
+        foreach (int rowDirection in rowDirections)
+        {
+            foreach (int colDirection in colDirections)
+            {
+                foreach (int lvlDirection in lvlDirections)
+                {
+                    moves.AddRange(GetMovesInDirection(gameBoard, piece, lvlDirection, rowDirection, colDirection).ToArray());
+                }
+            }
+        }
 
         return moves;
     }
@@ -168,31 +224,28 @@ static class MoveGenerator
     {
         List<Move> moves = new List<Move>();
 
+        //bishop can move diagonally foward-left, foward-right, back-left, back-right, forward-left-up, forward-left-down, forward-right-up, forward-right-down, back-left-up, back-left-down, back-right-up, back-right-down
+        int[,] triplets = { { 0, 1, 1 }, { 0, 1, -1 }, { 0, -1, 1 }, { 0, -1, -1 }, { 1, 1, 1 }, { -1, 1, 1 }, { 1, 1, -1 }, { -1, 1, -1 }, { 1, -1, 1 }, { -1, -1, 1 }, { 1, -1, -1 }, { -1, -1, -1 } };
+
+        for (int i = 0; i < triplets.GetLength(0); i++)
+        {
+            moves.AddRange(GetMovesInDirection(gameBoard, piece, triplets[i, 0], triplets[i, 1], triplets[i, 2]).ToArray());
+        }
+
         return moves;
     }
 
-    private static List<Move> GetMovesInDirection(GameBoard gameBoard, Piece piece, int levelDirection, int rowDirection, int colDirection)
+    private static List<Move> GetMovesInDirection(GameBoard gameBoard, Piece piece, int levelDirection, int rowDirection, int colDirection, int max=99)
     {
         List<Move> moves = new List<Move>();
 
-        if(levelDirection < -1 || levelDirection > 1)
-        {
-            throw new Exception("not a valid direction");
-        }
+        int levelChange = levelDirection;
+        int rowChange = rowDirection;
+        int colChange = colDirection;
 
-        if (rowDirection < -1 || rowDirection > 1)
+        for(int i = 0; i < max; i++)
         {
-            throw new Exception("not a valid direction");
-        }
-
-        if (colDirection < -1 || colDirection > 1)
-        {
-            throw new Exception("not a valid direction");
-        }
-
-        while(true)
-        {
-            Space cSpace = gameBoard.GetSpace(piece.space.level + levelDirection, piece.space.row + rowDirection, piece.space.col + colDirection);
+            Space cSpace = gameBoard.GetSpace(piece.space.level + levelChange, piece.space.row + rowChange, piece.space.col + colChange);
 
             if(cSpace == null)
             {
@@ -201,6 +254,7 @@ static class MoveGenerator
 
             if(cSpace.occupied && cSpace.occupier.player.playerNumber != piece.player.playerNumber)
             {
+                //last move in the sequence is a cap move
                 moves.Add(new Move(piece, cSpace, Move.MoveType.cap));
                 break;
             }
@@ -213,7 +267,13 @@ static class MoveGenerator
             if(!cSpace.occupied)
             {
                 moves.Add(new Move(piece, cSpace, Move.MoveType.nocap));
+                //amplify move for next iteration
+                levelChange += levelDirection;
+                rowChange += rowDirection;
+                colChange += colDirection;
             }
         }
+
+        return moves;
     }
 }

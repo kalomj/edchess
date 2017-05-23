@@ -159,11 +159,11 @@ public class GameBoard : MonoBehaviour {
         piece.transform.position = space.transform.position;
         piece.space.occupied = false;
         piece.space.occupier = null;
-        piece.space.AnimateShell(.5f);
+        piece.space.AnimateShell(.5f, Color.grey);
         piece.space = space;
         space.occupied = true;
         space.occupier = piece;
-        space.AnimateShell(.5f);
+        space.AnimateShell(.5f, Color.blue);
     }
 
     public void Move(Move move)
