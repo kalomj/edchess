@@ -176,7 +176,6 @@ public class UIController : MonoBehaviour {
                     {
                         Debug.Log("Error: image not found at index " + i + " " + j + " " + k);
                     }
-
                 }
             }
         }
@@ -196,7 +195,7 @@ public class UIController : MonoBehaviour {
                 spaceLookup[m.space.GetLevel()][m.space.GetRow()][m.space.GetCol()].color = Color.cyan;
             }
 
-            StartCoroutine(game.HighlightMoves(moves));
+            StartCoroutine(game.HighlightMoves(moves, 5f));
         }
     }
 

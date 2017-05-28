@@ -64,6 +64,15 @@ public class Game : MonoBehaviour {
         }
     }
 
+    public IEnumerator HighlightMoves(List<Move> moves, float time)
+    {
+        for (int i = 0; i < moves.Count; i++)
+        {
+            ((Space)moves[i].space).AnimateShell(time - i * time / moves.Count, Color.yellow);
+            yield return new WaitForSeconds(time / moves.Count);
+        }
+    }
+
     /// <summary>
     /// select a random piece until a legal list of moves is found. select a random move from the list.
     /// </summary>

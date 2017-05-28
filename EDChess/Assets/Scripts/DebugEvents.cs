@@ -43,6 +43,8 @@ public class DebugEvents : MonoBehaviour {
 
         DoMove(gbs);
         DoMove(gbs2);
+
+        game.uiController.RenderBoard(gbs);
         
         sw.Stop();
 
