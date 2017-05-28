@@ -1,9 +1,10 @@
-﻿using System.Collections;
+﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using DG.Tweening;
 using UnityEngine;
 
-public class Space : MonoBehaviour
+public class Space : MonoBehaviour, ISpaceState
 {
 
     public bool occupied = false;
@@ -54,5 +55,45 @@ public class Space : MonoBehaviour
         meshRender.enabled = false;
     }
 
-    
+    bool ISpaceState.IsOccupied()
+    {
+        return occupied;
+    }
+
+    IPieceState ISpaceState.Occupier()
+    {
+        return occupier;
+    }
+
+    int ISpaceState.GetLevel()
+    {
+        return level;
+    }
+
+    int ISpaceState.GetRow()
+    {
+        return row;
+    }
+
+    int ISpaceState.GetCol()
+    {
+        return col;
+    }
+
+    public SpaceState CreateSpaceState()
+    {
+        SpaceState ss = new SpaceState();
+
+        ss.occupied = ((ISpaceState)this).IsOccupied();
+
+        IPieceState ps = ((ISpaceState)this).Occupier();
+
+
+        if (ps != null)
+        {
+            ss.occupier = ps.CreatePieceState(); 
+        }
+
+        return ss;
+    }
 }

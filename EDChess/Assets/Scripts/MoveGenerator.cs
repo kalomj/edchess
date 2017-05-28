@@ -7,11 +7,11 @@ using UnityEngine;
 static class MoveGenerator
 {
 
-    public static List<Move> GetMoves(GameBoard gameBoard, Piece piece)
+    public static List<Move> GetMoves(IGameBoardState gameBoard, IPieceState piece)
     {
         List<Move> moves;
 
-        switch(piece.pieceType)
+        switch(piece.GetPieceType())
         {
             case Piece.PieceType.pawn:
                 moves = GetPawnMoves(gameBoard, piece);
@@ -45,7 +45,7 @@ static class MoveGenerator
         return moves;
     }
 
-    private static List<Move> GetPawnMoves(GameBoard gameBoard, Piece piece)
+    private static List<Move> GetPawnMoves(IGameBoardState gameBoard, IPieceState piece)
     {
         List<Move> moves = new List<Move>();
         int moveDirection = GetPawnMoveDirection(piece);
@@ -54,7 +54,7 @@ static class MoveGenerator
 
 
         //check one space ahead, two spaces ahead if on starting row
-        if(piece.space.row == pawnStartRow)
+        if(piece.GetSpaceState().GetRow() == pawnStartRow)
         {
             possibleDistance = 2;
         }
@@ -68,9 +68,9 @@ static class MoveGenerator
         {
             for (int i = 1; i <= possibleDistance; i++)
             {
-                Space cSpace = gameBoard.GetSpace(piece.space.level + vOffset, piece.space.row + moveDirection * i, piece.space.col);
+                ISpaceState cSpace = gameBoard.GetSpaceState(piece.GetSpaceState().GetLevel() + vOffset, piece.GetSpaceState().GetRow() + moveDirection * i, piece.GetSpaceState().GetCol());
 
-                if (cSpace != null && cSpace.occupied)
+                if (cSpace != null && cSpace.IsOccupied())
                 {
                     break;
                 }
@@ -88,9 +88,9 @@ static class MoveGenerator
         {
             foreach (int cOffset in cOffsets)
             {
-                Space cSpace = gameBoard.GetSpace(piece.space.level, piece.space.row + moveDirection, piece.space.col + cOffset);
+                ISpaceState cSpace = gameBoard.GetSpaceState(piece.GetSpaceState().GetLevel(), piece.GetSpaceState().GetRow() + moveDirection, piece.GetSpaceState().GetCol() + cOffset);
 
-                if (cSpace != null && cSpace.occupied && cSpace.occupier.player.playerNumber != piece.player.playerNumber)
+                if (cSpace != null && cSpace.IsOccupied() && cSpace.Occupier().GetPlayer() != piece.GetPlayer())
                 {
                     moves.Add(new Move(piece, cSpace, Move.MoveType.cap));
                 }
@@ -102,29 +102,29 @@ static class MoveGenerator
         return moves;
     }
 
-    private static int GetPawnStartRow(GameBoard gameBoard, Piece piece)
+    private static int GetPawnStartRow(IGameBoardState gameBoard, IPieceState piece)
     {
         int pawnStartRow;
-        if (piece.player.playerNumber == Player.PlayerNumber.Player1)
+        if (piece.GetPlayer() == Player.PlayerNumber.Player1)
         {
             pawnStartRow = 1;
         }
         else
         {
-            pawnStartRow = gameBoard.GridTemplate.rows - 2;
+            pawnStartRow = gameBoard.GetNumRows() - 2;
         }
 
         return pawnStartRow;
     }
 
-    private static int GetPawnMoveDirection(Piece piece)
+    private static int GetPawnMoveDirection(IPieceState piece)
     {
         int moveDirection;
-        if (piece.player.playerNumber == Player.PlayerNumber.Player1)
+        if (piece.GetPlayer() == Player.PlayerNumber.Player1)
         {
             moveDirection = 1;
         }
-        else if (piece.player.playerNumber == Player.PlayerNumber.Player2)
+        else if (piece.GetPlayer() == Player.PlayerNumber.Player2)
         {
             moveDirection = -1;
         }
@@ -136,7 +136,7 @@ static class MoveGenerator
         return moveDirection;
     }
 
-    private static List<Move> GetKingMoves(GameBoard gameBoard, Piece piece)
+    private static List<Move> GetKingMoves(IGameBoardState gameBoard, IPieceState piece)
     {
         List<Move> moves = new List<Move>();
 
@@ -161,7 +161,7 @@ static class MoveGenerator
         return moves;
     }
 
-    private static List<Move> GetRookMoves(GameBoard gameBoard, Piece piece)
+    private static List<Move> GetRookMoves(IGameBoardState gameBoard, IPieceState piece)
     {
         List<Move> moves = new List<Move>();
 
@@ -176,7 +176,7 @@ static class MoveGenerator
         return moves;
     }
 
-    private static List<Move> GetKnightMoves(GameBoard gameBoard, Piece piece)
+    private static List<Move> GetKnightMoves(IGameBoardState gameBoard, IPieceState piece)
     {
         List<Move> moves = new List<Move>();
 
@@ -197,7 +197,7 @@ static class MoveGenerator
         return moves;
     }
 
-    private static List<Move> GetQueenMoves(GameBoard gameBoard, Piece piece)
+    private static List<Move> GetQueenMoves(IGameBoardState gameBoard, IPieceState piece)
     {
         List<Move> moves = new List<Move>();
 
@@ -220,7 +220,7 @@ static class MoveGenerator
         return moves;
     }
 
-    private static List<Move> GetBishopMoves(GameBoard gameBoard, Piece piece)
+    private static List<Move> GetBishopMoves(IGameBoardState gameBoard, IPieceState piece)
     {
         List<Move> moves = new List<Move>();
 
@@ -235,7 +235,7 @@ static class MoveGenerator
         return moves;
     }
 
-    private static List<Move> GetMovesInDirection(GameBoard gameBoard, Piece piece, int levelDirection, int rowDirection, int colDirection, int max=99)
+    private static List<Move> GetMovesInDirection(IGameBoardState gameBoard, IPieceState piece, int levelDirection, int rowDirection, int colDirection, int max=99)
     {
         List<Move> moves = new List<Move>();
 
@@ -245,26 +245,26 @@ static class MoveGenerator
 
         for(int i = 0; i < max; i++)
         {
-            Space cSpace = gameBoard.GetSpace(piece.space.level + levelChange, piece.space.row + rowChange, piece.space.col + colChange);
+            ISpaceState cSpace = gameBoard.GetSpaceState(piece.GetSpaceState().GetLevel()+ levelChange, piece.GetSpaceState().GetRow() + rowChange, piece.GetSpaceState().GetCol() + colChange);
 
             if(cSpace == null)
             {
                 break;
             }
 
-            if(cSpace.occupied && cSpace.occupier.player.playerNumber != piece.player.playerNumber)
+            if(cSpace.IsOccupied() && cSpace.Occupier().GetPlayer() != piece.GetPlayer())
             {
                 //last move in the sequence is a cap move
                 moves.Add(new Move(piece, cSpace, Move.MoveType.cap));
                 break;
             }
 
-            if(cSpace.occupied && cSpace.occupier.player.playerNumber == piece.player.playerNumber)
+            if(cSpace.IsOccupied() && cSpace.Occupier().GetPlayer() == piece.GetPlayer())
             {
                 break;
             }
 
-            if(!cSpace.occupied)
+            if(!cSpace.IsOccupied())
             {
                 moves.Add(new Move(piece, cSpace, Move.MoveType.nocap));
                 //amplify move for next iteration

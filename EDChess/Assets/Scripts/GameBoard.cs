@@ -1,8 +1,9 @@
-﻿using System.Collections;
+﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class GameBoard : MonoBehaviour {
+public class GameBoard : MonoBehaviour, IGameBoardState {
 
     public List<Level> Levels;
     public List<Piece> AlivePieces;
@@ -168,11 +169,70 @@ public class GameBoard : MonoBehaviour {
 
     public void Move(Move move)
     {
-        Move(move.piece, move.space);
+        Move((Piece)move.piece, (Space)move.space);
     }
 
     public Space GetRandomSpace()
     {
         return GetSpace(sysRandom.Next(0, numberLevels), sysRandom.Next(0, GridTemplate.rows), sysRandom.Next(0, GridTemplate.cols));   
+    }
+
+    ISpaceState IGameBoardState.GetSpaceState(int level, int row, int col)
+    {
+        return GetSpace(level, row, col);
+    }
+
+    int IGameBoardState.GetNumLevels()
+    {
+        return numberLevels;
+    }
+
+    int IGameBoardState.GetNumRows()
+    {
+        return GridTemplate.rows;
+    }
+
+    int IGameBoardState.GetNumCols()
+    {
+        return GridTemplate.cols;
+    }
+
+    public GameBoardState CreateGameBoardState()
+    {
+        IGameBoardState igbs = this;
+
+        GameBoardState newGbs = new GameBoardState(igbs.GetNumLevels(), igbs.GetNumRows(), igbs.GetNumCols());
+        
+        for(int lvl = 0; lvl < (igbs.GetNumLevels()); lvl++)
+        {
+            for(int row = 0; row < (igbs.GetNumRows()); row++)
+            {
+                for(int col = 0; col < (igbs.GetNumCols()); col++)
+                {
+                    ISpaceState iss = igbs.GetSpaceState(lvl, row, col);
+                    newGbs.spaces[lvl][row][col].occupied = iss.IsOccupied();
+                    IPieceState ips = iss.Occupier();
+                    if(ips != null)
+                    {
+                        PieceState ps = ips.CreatePieceState();
+                        newGbs.spaces[lvl][row][col].occupier = ps;
+                        newGbs.AlivePieces.Add(ps);
+                        ps.space = newGbs.spaces[lvl][row][col];
+                    }
+                }
+            }
+        }
+
+        foreach(IPieceState piece in DeadPieces)
+        {
+            newGbs.DeadPieces.Add(piece.CreatePieceState());
+        }
+
+        return newGbs;
+    }
+
+    void IGameBoardState.Move(IPieceState piece, ISpaceState space)
+    {
+        this.Move((Piece)piece, (Space)space);
     }
 }

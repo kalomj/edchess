@@ -1,8 +1,9 @@
-﻿using System.Collections;
+﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class Piece : MonoBehaviour {
+public class Piece : MonoBehaviour, IPieceState {
 
     public Space space;
 
@@ -62,5 +63,36 @@ public class Piece : MonoBehaviour {
     public void SetPieceType(PieceType pieceType)
     {
         this.pieceType = pieceType;
+    }
+
+    Player.PlayerNumber IPieceState.GetPlayer()
+    {
+        return player.playerNumber;
+    }
+
+    ISpaceState IPieceState.GetSpaceState()
+    {
+        return space;
+    }
+
+    PieceType IPieceState.GetPieceType()
+    {
+        return pieceType;
+    }
+
+    PieceState IPieceState.CreatePieceState()
+    {
+        PieceState ps = new PieceState();
+
+        ps.pieceType = this.pieceType;
+        ps.player = this.player;
+        ps.Alive = this.alive;
+
+        return ps;
+    }
+
+    Color IPieceState.GetPieceTint()
+    {
+        return player.PieceTint;
     }
 }

@@ -7,13 +7,13 @@ using UnityEngine;
 
 public class Move
 {
-    public Piece piece;
-    public Space space;
+    public IPieceState piece;
+    public ISpaceState space;
 
     public enum MoveType { cap, nocap };
     public MoveType moveType;
 
-    public Move(Piece piece, Space space, MoveType moveType)
+    public Move(IPieceState piece, ISpaceState space, MoveType moveType)
     {
         this.piece = piece;
         this.space = space;

@@ -8,10 +8,13 @@ public class Game : MonoBehaviour {
     public Player player2;
     public GameBoard gameBoard;
     public Camera mainCamera;
+    public UIController uiController;
 
     public float MoveTime = 1f;
 
     System.Random sysRandom = new System.Random();
+
+    public bool Paused = false;
 
     // Use this for initialization
     void Start () {
@@ -20,7 +23,10 @@ public class Game : MonoBehaviour {
 	
 	// Update is called once per frame
 	void Update () {
-		
+		if(Input.GetKeyDown(KeyCode.P))
+        {
+            Paused = !Paused;
+        }
 	}
 
     private IEnumerator MovePieceEvent()
@@ -31,12 +37,21 @@ public class Game : MonoBehaviour {
         {
             move = GetRandomMove(player1);
             yield return new WaitForSeconds(MoveTime);
+            while(Paused)
+            {
+                yield return new WaitForSeconds(MoveTime);
+            }
             gameBoard.Move(move);
+            uiController.RenderBoard(gameBoard);
 
             move = GetRandomMove(player2);
             yield return new WaitForSeconds(MoveTime);
+            while (Paused)
+            {
+                yield return new WaitForSeconds(MoveTime);
+            }
             gameBoard.Move(move);
-
+            uiController.RenderBoard(gameBoard);
         }
     }
 
@@ -44,7 +59,7 @@ public class Game : MonoBehaviour {
     {
         for(int i = 0; i < moves.Count; i++)
         {
-            moves[i].space.AnimateShell(MoveTime - i* MoveTime / moves.Count, Color.yellow);
+           ((Space)moves[i].space).AnimateShell(MoveTime - i* MoveTime / moves.Count, Color.yellow);
             yield return new WaitForSeconds(MoveTime/moves.Count);
         }
     }
