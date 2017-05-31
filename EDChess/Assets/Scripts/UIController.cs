@@ -23,7 +23,8 @@ public class UIController : MonoBehaviour {
     public Sprite KnightSprite;
 
     public Dictionary<Piece.PieceType, Sprite> PieceSprites;
-    public List<List<List<Image>>> spaceLookup;
+    public List<List<List<Image>>> squareLookup;
+    public List<Move> moveTargets;
 
     public Game game;
 
@@ -31,24 +32,24 @@ public class UIController : MonoBehaviour {
     {
         PieceSprites = new Dictionary<Piece.PieceType, Sprite>();
 
-        spaceLookup = new List<List<List<Image>>>();
+        squareLookup = new List<List<List<Image>>>();
 
         GameObject[] boards = GameObject.FindGameObjectsWithTag("Board");
 
         //initialize space structure with nulls
-        spaceLookup = new List<List<List<Image>>>();
+        squareLookup = new List<List<List<Image>>>();
 
         for(int i = 0; i < game.gameBoard.numberLevels; i++)
         {
-            spaceLookup.Add(new List<List<Image>>());
+            squareLookup.Add(new List<List<Image>>());
 
             for(int j = 0; j < game.gameBoard.GridTemplate.rows; j++)
             {
-                spaceLookup[i].Add(new List<Image>());
+                squareLookup[i].Add(new List<Image>());
 
                 for(int k = 0; k < game.gameBoard.GridTemplate.cols; k++)
                 {
-                    spaceLookup[i][j].Add(null);
+                    squareLookup[i][j].Add(null);
                 }
             }
         }
@@ -64,22 +65,22 @@ public class UIController : MonoBehaviour {
             {
                 if(img.name.Substring(0,7) == "Square_")
                 {
-                    int spaceNumber = Int32.Parse(img.name.Substring(img.name.Length - 1));
+                    int squareNumber = Int32.Parse(img.name.Substring(img.name.Length - 1));
 
                     int rowNumber = Int32.Parse(img.rectTransform.parent.name.Substring(img.rectTransform.parent.name.Length - 1));
 
-                    spaceLookup[boardNumber][rowNumber][spaceNumber] = img;
+                    squareLookup[boardNumber][rowNumber][squareNumber] = img;
 
                     SquareButton sb = img.gameObject.AddComponent<SquareButton>();
                     sb.level = boardNumber;
                     sb.row = rowNumber;
-                    sb.col = spaceNumber;
+                    sb.col = squareNumber;
 
                     Button b = img.GetComponent<Button>();
                     Navigation n = b.navigation;
                     n.mode = Navigation.Mode.None;
                     b.navigation = n;
-                    b.onClick.AddListener(() => HighlightMoves(boardNumber, rowNumber, spaceNumber));
+                    b.onClick.AddListener(() => SquareClickEvent(boardNumber, rowNumber, squareNumber));
                 }
             }
         }
@@ -154,7 +155,7 @@ public class UIController : MonoBehaviour {
             {
                 for(int k = 0; k < cols; k++)
                 {
-                    Image img = spaceLookup[i][j][k];
+                    Image img = squareLookup[i][j][k];
 
                     if(img != null)
                     {
@@ -181,21 +182,36 @@ public class UIController : MonoBehaviour {
         }
     }
 
-    public void HighlightMoves(int level, int row, int col)
+    public void SquareClickEvent(int level, int row, int col)
     {
+        ISpaceState s = game.gameBoard.GetSpace(level, row, col);
+        bool moved = false;
+        if (moveTargets != null)
+        {
+            foreach(Move m in moveTargets)
+            {
+                if(m.space == s)
+                {
+                    game.gameBoard.Move(m);
+                    RenderBoard(game.gameBoard);
+                    moved = true;
+                    break;
+                }
+            }
+            moveTargets = null;
+        }
+
         ResetButtonHighlights();
 
-        Space s = game.gameBoard.GetSpace(level, row, col);
-
-        if(s.occupied)
+        if(s.IsOccupied() && !moved)
         {
-            List<Move> moves = MoveGenerator.GetMoves(game.gameBoard, s.occupier);
-            foreach(Move m in moves)
+            moveTargets = MoveGenerator.GetMoves(game.gameBoard, s.Occupier());
+            foreach(Move m in moveTargets)
             {
-                spaceLookup[m.space.GetLevel()][m.space.GetRow()][m.space.GetCol()].color = Color.cyan;
+                squareLookup[m.space.GetLevel()][m.space.GetRow()][m.space.GetCol()].color = Color.cyan;
             }
 
-            StartCoroutine(game.HighlightMoves(moves, 5f));
+            StartCoroutine(game.HighlightMoves(moveTargets, 5f));
         }
     }
 
@@ -207,7 +223,7 @@ public class UIController : MonoBehaviour {
             {
                 for(int k = 0; k < game.gameBoard.GridTemplate.cols; k++)
                 {
-                    Image img = spaceLookup[i][j][k];
+                    Image img = squareLookup[i][j][k];
 
                     if (game.gameBoard.GetSpace(i, j, k).occupied)
                     {
