@@ -110,6 +110,7 @@
     <Compile Include="Assets\Scripts\SquareButton.cs" />
     <Compile Include="Assets\Scripts\Sun.cs" />
     <Compile Include="Assets\Scripts\UIController.cs" />
+    <Compile Include="Assets\Scripts\UtilityCalculator.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="Assets\Demigiant\DOTween\DOTween.XML" />

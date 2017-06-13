@@ -211,7 +211,7 @@ public class UIController : MonoBehaviour {
                 squareLookup[m.space.GetLevel()][m.space.GetRow()][m.space.GetCol()].color = Color.cyan;
             }
 
-            StartCoroutine(game.HighlightMoves(moveTargets, 5f));
+            StartCoroutine(game.HighlightMoves(moveTargets, 3f));
         }
     }
 

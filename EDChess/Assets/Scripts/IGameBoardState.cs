@@ -11,4 +11,5 @@ public interface IGameBoardState
     int GetNumRows();
     int GetNumCols();
     void Move(IPieceState piece, ISpaceState space);
+
 }
