@@ -2,6 +2,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using System.Linq;
 
 public class GameBoard : MonoBehaviour, IGameBoardState {
 
@@ -167,9 +168,42 @@ public class GameBoard : MonoBehaviour, IGameBoardState {
         space.AnimateShell(.5f, Color.blue);
     }
 
-    public void Move(Move move)
+    public bool Move(Move move)
     {
-        Move((Piece)move.piece, (Space)move.space);
+        //Move objects can be passed between games so we
+        //have to look up the piece and space owned by this game
+        //and check to ensure the move is applicable to this game
+
+        IPieceState ips = move.piece;
+        ISpaceState iss_dest = move.space;
+        ISpaceState iss_source = ips.GetSpaceState();
+
+        ISpaceState this_iss_dest = this.GetSpace(iss_dest.GetLevel(), iss_dest.GetRow(), iss_dest.GetCol());
+        ISpaceState this_iss_source = this.GetSpace(iss_source.GetLevel(), iss_source.GetRow(), iss_source.GetCol());
+
+        if(!this_iss_source.IsOccupied() || this_iss_source.Occupier().GetPieceType() != ips.GetPieceType() || this_iss_source.Occupier().GetPlayer() != ips.GetPlayer())
+        {
+            Debug.Log("Illegal move attempted. Skipping turn." + move.ToString());
+
+            if(!this_iss_source.IsOccupied())
+            {
+                Debug.Log("Source is not occupied in real game board.");
+            }
+            else if(this_iss_source.Occupier().GetPieceType() != ips.GetPieceType())
+            {
+                Debug.Log("A different piece type is at the source location in real game board.");
+            }
+            else if(this_iss_source.Occupier().GetPlayer() != ips.GetPlayer())
+            {
+                Debug.Log("A different player owns the piece in the real game board.");
+            }
+
+            return false;
+            //throw new Exception("Invalid move for this real game board.");
+        }
+        
+        Move((Piece)this_iss_source.Occupier(), (Space)this_iss_dest);
+        return true;
     }
 
     public Space GetRandomSpace()
@@ -233,6 +267,17 @@ public class GameBoard : MonoBehaviour, IGameBoardState {
 
     void IGameBoardState.Move(IPieceState piece, ISpaceState space)
     {
-        this.Move((Piece)piece, (Space)space);
+        Move m = new Move(piece, space, global::Move.MoveType.none);
+        this.Move(m);
+    }
+
+    List<IPieceState> IGameBoardState.GetAlivePieces()
+    {
+        return AlivePieces.Select(alive => (IPieceState)alive).ToList();
+    }
+
+    IGameBoardState IGameBoardState.Clone()
+    {
+        return this.CreateGameBoardState();
     }
 }

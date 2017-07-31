@@ -24,11 +24,11 @@ public class GameStatsEvents : MonoBehaviour {
 
         foreach (Piece piece in game.gameBoard.AlivePieces)
         {
-            if (piece.player.playerNumber == Player.PlayerNumber.Player1)
+            if (piece.player.playerNumber == Player.PlayerNumber.Player1 && piece.pieceType == Piece.PieceType.king)
             {
                 p1Count++;
             }
-            else
+            else if(piece.player.playerNumber == Player.PlayerNumber.Player2 && piece.pieceType == Piece.PieceType.king)
             {
                 p2Count++;
             }

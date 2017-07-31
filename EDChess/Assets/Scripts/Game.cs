@@ -9,10 +9,14 @@ public class Game : MonoBehaviour {
     public GameBoard gameBoard;
     public Camera mainCamera;
     public UIController uiController;
+    public int AIThoughtDepth = 1;
+    public long MaxStatesToSearch = 10000;
 
     public float MoveTime = 1f;
 
     System.Random sysRandom = new System.Random();
+
+    public AIMinMaxResult lastResult;
 
     public bool Paused = false;
 
@@ -31,28 +35,86 @@ public class Game : MonoBehaviour {
 
     private IEnumerator MovePieceEvent()
     {
-        Move move;
+        AIMinMaxResult aiResult;
         yield return new WaitForSeconds(1f);
         while (true)
         {
-            move = GetRandomMove(player1);
-            yield return new WaitForSeconds(MoveTime);
-            while(Paused)
+
+            //start thinking asyncronously
+            gameBoard.AIMinMaxSearchAsyncBegin(AIThoughtDepth+3, Player.PlayerNumber.Player1);
+            //a player can think about his move for as long as it takes his opponent's move to animate
+            while (AIMinMax.jobStatus == AIMinMaxJobStatus.Started || AIMinMax.jobStatus == AIMinMaxJobStatus.StopRequested)
             {
                 yield return new WaitForSeconds(MoveTime);
+                if(AIMinMax.jobStatus == AIMinMaxJobStatus.Started && AIMinMax.StatesSearched > MaxStatesToSearch)
+                {
+                    gameBoard.AiMinMaxSearchAsyncStopRequest();
+                }
             }
-            gameBoard.Move(move);
-            uiController.RenderBoard(gameBoard);
-
-            move = GetRandomMove(player2);
-            yield return new WaitForSeconds(MoveTime);
+            //finish thinking and get the move
+            aiResult = gameBoard.AIMinMaxSearchAsyncEnd();
+            lastResult = aiResult;
+            //this is the best place to stop if the game should be paused for testing
             while (Paused)
             {
                 yield return new WaitForSeconds(MoveTime);
             }
-            gameBoard.Move(move);
+
+            gameBoard.Move(aiResult.Move);
+            
+            //render the gameboard to the 2d representation
             uiController.RenderBoard(gameBoard);
+
+            if (CheckGameOver())
+            {
+                yield break;
+            }
+
+            //Do it again for player 2, without the comments. Not a subroutine because you can't refactor a yield to a subroutine
+
+            gameBoard.AIMinMaxSearchAsyncBegin(AIThoughtDepth, Player.PlayerNumber.Player2);
+            while (AIMinMax.jobStatus == AIMinMaxJobStatus.Started)
+            {
+                yield return new WaitForSeconds(MoveTime);
+            }
+            aiResult = gameBoard.AIMinMaxSearchAsyncEnd();
+            lastResult = aiResult;
+            while (Paused)
+            {
+                yield return new WaitForSeconds(MoveTime);
+            }
+            gameBoard.Move(aiResult.Move);
+            uiController.RenderBoard(gameBoard);
+
+            if (CheckGameOver())
+            {
+                yield break;
+            }
         }
+    }
+
+    public bool CheckGameOver()
+    {
+        int p1Count = 0;
+        int p2Count = 0;
+
+        foreach (Piece piece in gameBoard.AlivePieces)
+        {
+            if (piece.player.playerNumber == Player.PlayerNumber.Player1 && piece.pieceType == Piece.PieceType.king)
+            {
+                p1Count++;
+            }
+            else if (piece.player.playerNumber == Player.PlayerNumber.Player2 && piece.pieceType == Piece.PieceType.king)
+            {
+                p2Count++;
+            }
+        }
+
+        if(p1Count == 0 || p2Count == 0)
+        {
+            return true;
+        }
+        return false;
     }
 
     public IEnumerator HighlightMoves(List<Move> moves)
@@ -100,6 +162,4 @@ public class Game : MonoBehaviour {
         StartCoroutine(HighlightMoves(moves));
         return moves[sysRandom.Next(0,moves.Count)];
     }
-
-    
 }

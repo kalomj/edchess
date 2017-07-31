@@ -45,6 +45,44 @@ static class MoveGenerator
         return moves;
     }
 
+    public static List<Move> GetCaptureMoves(IGameBoardState gameBoard, IPieceState piece)
+    {
+        List<Move> moves;
+
+        switch (piece.GetPieceType())
+        {
+            case Piece.PieceType.pawn:
+                moves = GetPawnMoves(gameBoard, piece);
+                break;
+
+            case Piece.PieceType.bishop:
+                moves = GetBishopMoves(gameBoard, piece);
+                break;
+
+            case Piece.PieceType.king:
+                moves = GetKingMoves(gameBoard, piece);
+                break;
+
+            case Piece.PieceType.knight:
+                moves = GetKnightMoves(gameBoard, piece);
+                break;
+
+            case Piece.PieceType.queen:
+                moves = GetQueenMoves(gameBoard, piece);
+                break;
+
+            case Piece.PieceType.rook:
+                moves = GetRookMoves(gameBoard, piece);
+                break;
+
+            default:
+                moves = new List<Move>();
+                break;
+        }
+
+        return moves.Where(s => s.moveType == Move.MoveType.cap).Select(s => s).ToList();
+    }
+
     private static List<Move> GetPawnMoves(IGameBoardState gameBoard, IPieceState piece)
     {
         List<Move> moves = new List<Move>();
@@ -182,7 +220,6 @@ static class MoveGenerator
 
         //knight moves 2 forward 1 left, 2 forward 1 right, 2 right 1 foward, 2 right 1 back, 2 left 1 forward, 2 left 1 back, 2 back 1 left, 2 back 1 right
         //these moves can happen on the same level, 2 levels up, or 2 levels down only.
-        //rook can move straight forward, back, left, right, up, or down 
         int[,] doublets = { { 2, 1 }, { 2, -1 }, { 1, 2 }, { 1, -2 }, { -1, 2 }, { -1, -2 }, { -2, 1 }, { -2, -1 } };
         int[] levelDirections = { -2, 0, 2 };
 

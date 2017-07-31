@@ -86,6 +86,8 @@
   <ItemGroup>
     <Compile Include="Assets\Demigiant\DOTween\Examples\Basics.cs" />
     <Compile Include="Assets\Demigiant\DOTween\Examples\Sequences.cs" />
+    <Compile Include="Assets\Scripts\AIMinMax.cs" />
+    <Compile Include="Assets\Scripts\AIStatsEvent.cs" />
     <Compile Include="Assets\Scripts\Board_2D.cs" />
     <Compile Include="Assets\Scripts\CameraRig.cs" />
     <Compile Include="Assets\Scripts\DebugEvents.cs" />

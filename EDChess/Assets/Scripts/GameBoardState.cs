@@ -73,6 +73,11 @@ public class GameBoardState : IGameBoardState
         }
     }
 
+    ISpaceState GetSpaceState(int level, int row, int col)
+    {
+        return ((IGameBoardState)this).GetSpaceState(level, row, col);
+    }
+
     public GameBoardState Clone()
     {
         GameBoardState newGbs = new GameBoardState(this.levels, this.rows, this.cols);
@@ -126,12 +131,39 @@ public class GameBoardState : IGameBoardState
 
     public void Move(Move move)
     {
-        Move((PieceState)move.piece, (SpaceState)move.space);
+        //Move objects can be passed between games so we
+        //have to look up the piece and space owned by this game
+        //and check to ensure the move is applicable to this game
+
+        IPieceState ips = move.piece;
+        ISpaceState iss_dest = move.space;
+        ISpaceState iss_source = ips.GetSpaceState();
+
+        ISpaceState this_iss_dest = this.GetSpaceState(iss_dest.GetLevel(), iss_dest.GetRow(), iss_dest.GetCol());
+        ISpaceState this_iss_source = this.GetSpaceState(iss_source.GetLevel(), iss_source.GetRow(), iss_source.GetCol());
+
+        if (!this_iss_source.IsOccupied() || this_iss_source.Occupier().GetPieceType() != ips.GetPieceType() || this_iss_source.Occupier().GetPlayer() != ips.GetPlayer())
+        {
+            throw new Exception("Invalid move for this simulated game board state.");
+        }
+
+        Move((PieceState)this_iss_source.Occupier(), (SpaceState)this_iss_dest);
     }
 
     void IGameBoardState.Move(IPieceState piece, ISpaceState space)
     {
-        this.Move((PieceState)piece, (SpaceState)space);
+        Move m = new Move(piece, space, global::Move.MoveType.none);
+        this.Move(m);
+    }
+
+    List<IPieceState> IGameBoardState.GetAlivePieces()
+    {
+        return AlivePieces.Select(alive => (IPieceState)alive).ToList();
+    }
+
+    IGameBoardState IGameBoardState.Clone()
+    {
+        return this.Clone();
     }
 }
 
