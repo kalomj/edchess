@@ -1,6 +1,7 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 
 public class Game : MonoBehaviour {
 
@@ -20,6 +21,9 @@ public class Game : MonoBehaviour {
 
     public bool Paused = false;
 
+    public bool RestartScene = false;
+
+
     // Use this for initialization
     void Start () {
         StartCoroutine(MovePieceEvent());
@@ -27,11 +31,8 @@ public class Game : MonoBehaviour {
 	
 	// Update is called once per frame
 	void Update () {
-		if(Input.GetKeyDown(KeyCode.P))
-        {
-            Paused = !Paused;
-        }
-	}
+        TryRestart();
+    }
 
     private IEnumerator MovePieceEvent()
     {
@@ -45,16 +46,19 @@ public class Game : MonoBehaviour {
             //a player can think about his move for as long as it takes his opponent's move to animate
             while (AIMinMax.jobStatus == AIMinMaxJobStatus.Started || AIMinMax.jobStatus == AIMinMaxJobStatus.StopRequested)
             {
+                
                 yield return new WaitForSeconds(MoveTime);
                 if(AIMinMax.jobStatus == AIMinMaxJobStatus.Started && AIMinMax.StatesSearched > MaxStatesToSearch)
                 {
                     gameBoard.AiMinMaxSearchAsyncStopRequest();
+                    
                 }
             }
             //finish thinking and get the move
             aiResult = gameBoard.AIMinMaxSearchAsyncEnd();
             lastResult = aiResult;
             //this is the best place to stop if the game should be paused for testing
+
             while (Paused)
             {
                 yield return new WaitForSeconds(MoveTime);
@@ -75,9 +79,11 @@ public class Game : MonoBehaviour {
             gameBoard.AIMinMaxSearchAsyncBegin(AIThoughtDepth, Player.PlayerNumber.Player2);
             while (AIMinMax.jobStatus == AIMinMaxJobStatus.Started)
             {
+                
                 yield return new WaitForSeconds(MoveTime);
             }
             aiResult = gameBoard.AIMinMaxSearchAsyncEnd();
+
             lastResult = aiResult;
             while (Paused)
             {
@@ -90,6 +96,17 @@ public class Game : MonoBehaviour {
             {
                 yield break;
             }
+        }
+    }
+
+    private void TryRestart()
+    {
+        if (RestartScene)
+        {
+            AIMinMax.JoinThreads();
+
+
+            SceneManager.LoadScene(SceneManager.GetActiveScene().name);
         }
     }
 
@@ -114,6 +131,7 @@ public class Game : MonoBehaviour {
         {
             return true;
         }
+
         return false;
     }
 

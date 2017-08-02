@@ -1,0 +1,245 @@
+Initialize engine version: 5.5.1f1 (88d00a7498cd)
+GfxDevice: creating device client; threaded=1
+Direct3D:
+    Version:  Direct3D 11.0 [level 11.1]
+    Renderer: NVIDIA GeForce GTX 970 (ID=0x13c2)
+    Vendor:   NVIDIA
+    VRAM:     3072 MB
+    Driver:   22.21.13.8233
+Begin MonoManager ReloadAssembly
+Platform assembly: E:\kalotech\edchess\Build\170731\edchess_Data\Managed\UnityEngine.dll (this message is harmless)
+Loading E:\kalotech\edchess\Build\170731\edchess_Data\Managed\UnityEngine.dll into Unity Child Domain
+Platform assembly: E:\kalotech\edchess\Build\170731\edchess_Data\Managed\Assembly-CSharp-firstpass.dll (this message is harmless)
+Loading E:\kalotech\edchess\Build\170731\edchess_Data\Managed\Assembly-CSharp-firstpass.dll into Unity Child Domain
+Platform assembly: E:\kalotech\edchess\Build\170731\edchess_Data\Managed\Assembly-CSharp.dll (this message is harmless)
+Loading E:\kalotech\edchess\Build\170731\edchess_Data\Managed\Assembly-CSharp.dll into Unity Child Domain
+Platform assembly: E:\kalotech\edchess\Build\170731\edchess_Data\Managed\UnityEngine.UI.dll (this message is harmless)
+Loading E:\kalotech\edchess\Build\170731\edchess_Data\Managed\UnityEngine.UI.dll into Unity Child Domain
+Platform assembly: E:\kalotech\edchess\Build\170731\edchess_Data\Managed\UnityEngine.Networking.dll (this message is harmless)
+Loading E:\kalotech\edchess\Build\170731\edchess_Data\Managed\UnityEngine.Networking.dll into Unity Child Domain
+Platform assembly: E:\kalotech\edchess\Build\170731\edchess_Data\Managed\UnityEngine.PlaymodeTestsRunner.dll (this message is harmless)
+Loading E:\kalotech\edchess\Build\170731\edchess_Data\Managed\UnityEngine.PlaymodeTestsRunner.dll into Unity Child Domain
+Platform assembly: E:\kalotech\edchess\Build\170731\edchess_Data\Managed\UnityEngine.Analytics.dll (this message is harmless)
+Loading E:\kalotech\edchess\Build\170731\edchess_Data\Managed\UnityEngine.Analytics.dll into Unity Child Domain
+Platform assembly: E:\kalotech\edchess\Build\170731\edchess_Data\Managed\DOTween.dll (this message is harmless)
+Loading E:\kalotech\edchess\Build\170731\edchess_Data\Managed\DOTween.dll into Unity Child Domain
+- Completed reload, in  0.165 seconds
+Platform assembly: E:\kalotech\edchess\Build\170731\edchess_Data\Managed\System.Core.dll (this message is harmless)
+Platform assembly: E:\kalotech\edchess\Build\170731\edchess_Data\Managed\System.dll (this message is harmless)
+desktop: 2560x1440 59Hz; virtual: 4480x1440 at 0,0
+<RI> Initializing input.
+<RI> Input initialized.
+<RI> Initialized touch support.
+UnloadTime: 0.935451 ms
+Setting up 1 worker threads for Enlighten.
+  Thread -> id: 392c -> priority: 1 
+AI Thread Started
+ 
+(Filename: C:/buildslave/unity/build/artifacts/generated/common/runtime/DebugBindings.gen.cpp Line: 51)
+
+AI Thread Finished
+ 
+(Filename: C:/buildslave/unity/build/artifacts/generated/common/runtime/DebugBindings.gen.cpp Line: 51)
+
+Tried ending AI thread in state Finished
+ 
+(Filename: C:/buildslave/unity/build/artifacts/generated/common/runtime/DebugBindings.gen.cpp Line: 51)
+
+AI Thread Started
+ 
+(Filename: C:/buildslave/unity/build/artifacts/generated/common/runtime/DebugBindings.gen.cpp Line: 51)
+
+AI Thread Finished
+ 
+(Filename: C:/buildslave/unity/build/artifacts/generated/common/runtime/DebugBindings.gen.cpp Line: 51)
+
+Tried ending AI thread in state Finished
+ 
+(Filename: C:/buildslave/unity/build/artifacts/generated/common/runtime/DebugBindings.gen.cpp Line: 51)
+
+AI Thread Started
+ 
+(Filename: C:/buildslave/unity/build/artifacts/generated/common/runtime/DebugBindings.gen.cpp Line: 51)
+
+AI Thread Finished
+ 
+(Filename: C:/buildslave/unity/build/artifacts/generated/common/runtime/DebugBindings.gen.cpp Line: 51)
+
+Tried ending AI thread in state Finished
+ 
+(Filename: C:/buildslave/unity/build/artifacts/generated/common/runtime/DebugBindings.gen.cpp Line: 51)
+
+Unloading 4 Unused Serialized files (Serialized files now loaded: 0)
+UnloadTime: 6.728470 ms
+
+Unloading 264 unused Assets to reduce memory usage. Loaded Objects now: 8694.
+Total: 4.683686 ms (FindLiveObjects: 0.374940 ms CreateObjectMapping: 0.130630 ms MarkObjects: 3.606207 ms  DeleteObjects: 0.567524 ms)
+
+AI Thread Started
+ 
+(Filename: C:/buildslave/unity/build/artifacts/generated/common/runtime/DebugBindings.gen.cpp Line: 51)
+
+AI Thread Finished
+ 
+(Filename: C:/buildslave/unity/build/artifacts/generated/common/runtime/DebugBindings.gen.cpp Line: 51)
+
+Unloading 3 Unused Serialized files (Serialized files now loaded: 0)
+UnloadTime: 3.048326 ms
+
+Unloading 259 unused Assets to reduce memory usage. Loaded Objects now: 8694.
+Total: 3.964783 ms (FindLiveObjects: 0.303342 ms CreateObjectMapping: 0.099360 ms MarkObjects: 3.176034 ms  DeleteObjects: 0.385753 ms)
+
+AI Thread Started
+ 
+(Filename: C:/buildslave/unity/build/artifacts/generated/common/runtime/DebugBindings.gen.cpp Line: 51)
+
+AI Thread Finished
+ 
+(Filename: C:/buildslave/unity/build/artifacts/generated/common/runtime/DebugBindings.gen.cpp Line: 51)
+
+Tried ending AI thread in state Finished
+ 
+(Filename: C:/buildslave/unity/build/artifacts/generated/common/runtime/DebugBindings.gen.cpp Line: 51)
+
+AI Thread Started
+ 
+(Filename: C:/buildslave/unity/build/artifacts/generated/common/runtime/DebugBindings.gen.cpp Line: 51)
+
+AI Thread Finished
+ 
+(Filename: C:/buildslave/unity/build/artifacts/generated/common/runtime/DebugBindings.gen.cpp Line: 51)
+
+Unloading 3 Unused Serialized files (Serialized files now loaded: 0)
+UnloadTime: 3.461550 ms
+
+Unloading 259 unused Assets to reduce memory usage. Loaded Objects now: 8696.
+Total: 4.156782 ms (FindLiveObjects: 0.270903 ms CreateObjectMapping: 0.094100 ms MarkObjects: 3.382354 ms  DeleteObjects: 0.408839 ms)
+
+Unloading 3 Unused Serialized files (Serialized files now loaded: 0)
+UnloadTime: 2.927048 ms
+
+Unloading 261 unused Assets to reduce memory usage. Loaded Objects now: 8694.
+Total: 3.917440 ms (FindLiveObjects: 0.294867 ms CreateObjectMapping: 0.096438 ms MarkObjects: 3.143596 ms  DeleteObjects: 0.382246 ms)
+
+AI Thread Started
+ 
+(Filename: C:/buildslave/unity/build/artifacts/generated/common/runtime/DebugBindings.gen.cpp Line: 51)
+
+AI Thread Finished
+ 
+(Filename: C:/buildslave/unity/build/artifacts/generated/common/runtime/DebugBindings.gen.cpp Line: 51)
+
+Unloading 3 Unused Serialized files (Serialized files now loaded: 0)
+UnloadTime: 3.136874 ms
+
+Unloading 259 unused Assets to reduce memory usage. Loaded Objects now: 8694.
+Total: 4.336508 ms (FindLiveObjects: 0.309479 ms CreateObjectMapping: 0.111342 ms MarkObjects: 3.459212 ms  DeleteObjects: 0.441862 ms)
+
+AI Thread Started
+ 
+(Filename: C:/buildslave/unity/build/artifacts/generated/common/runtime/DebugBindings.gen.cpp Line: 51)
+
+AI Thread Finished
+ 
+(Filename: C:/buildslave/unity/build/artifacts/generated/common/runtime/DebugBindings.gen.cpp Line: 51)
+
+Tried ending AI thread in state Finished
+ 
+(Filename: C:/buildslave/unity/build/artifacts/generated/common/runtime/DebugBindings.gen.cpp Line: 51)
+
+AI Thread Started
+ 
+(Filename: C:/buildslave/unity/build/artifacts/generated/common/runtime/DebugBindings.gen.cpp Line: 51)
+
+AI Thread Finished
+ 
+(Filename: C:/buildslave/unity/build/artifacts/generated/common/runtime/DebugBindings.gen.cpp Line: 51)
+
+Tried ending AI thread in state Finished
+ 
+(Filename: C:/buildslave/unity/build/artifacts/generated/common/runtime/DebugBindings.gen.cpp Line: 51)
+
+AI Thread Started
+ 
+(Filename: C:/buildslave/unity/build/artifacts/generated/common/runtime/DebugBindings.gen.cpp Line: 51)
+
+AI Thread Finished
+ 
+(Filename: C:/buildslave/unity/build/artifacts/generated/common/runtime/DebugBindings.gen.cpp Line: 51)
+
+Tried ending AI thread in state Finished
+ 
+(Filename: C:/buildslave/unity/build/artifacts/generated/common/runtime/DebugBindings.gen.cpp Line: 51)
+
+AI Thread Started
+ 
+(Filename: C:/buildslave/unity/build/artifacts/generated/common/runtime/DebugBindings.gen.cpp Line: 51)
+
+AI Thread Finished
+ 
+(Filename: C:/buildslave/unity/build/artifacts/generated/common/runtime/DebugBindings.gen.cpp Line: 51)
+
+Tried ending AI thread in state Finished
+ 
+(Filename: C:/buildslave/unity/build/artifacts/generated/common/runtime/DebugBindings.gen.cpp Line: 51)
+
+AI Thread Started
+ 
+(Filename: C:/buildslave/unity/build/artifacts/generated/common/runtime/DebugBindings.gen.cpp Line: 51)
+
+AI Thread Finished
+ 
+(Filename: C:/buildslave/unity/build/artifacts/generated/common/runtime/DebugBindings.gen.cpp Line: 51)
+
+Tried ending AI thread in state Finished
+ 
+(Filename: C:/buildslave/unity/build/artifacts/generated/common/runtime/DebugBindings.gen.cpp Line: 51)
+
+AI Thread Started
+ 
+(Filename: C:/buildslave/unity/build/artifacts/generated/common/runtime/DebugBindings.gen.cpp Line: 51)
+
+AI Thread Finished
+ 
+(Filename: C:/buildslave/unity/build/artifacts/generated/common/runtime/DebugBindings.gen.cpp Line: 51)
+
+Tried ending AI thread in state Finished
+ 
+(Filename: C:/buildslave/unity/build/artifacts/generated/common/runtime/DebugBindings.gen.cpp Line: 51)
+
+AI Thread Started
+ 
+(Filename: C:/buildslave/unity/build/artifacts/generated/common/runtime/DebugBindings.gen.cpp Line: 51)
+
+AI Thread Finished
+ 
+(Filename: C:/buildslave/unity/build/artifacts/generated/common/runtime/DebugBindings.gen.cpp Line: 51)
+
+Tried ending AI thread in state Finished
+ 
+(Filename: C:/buildslave/unity/build/artifacts/generated/common/runtime/DebugBindings.gen.cpp Line: 51)
+
+AI Thread Started
+ 
+(Filename: C:/buildslave/unity/build/artifacts/generated/common/runtime/DebugBindings.gen.cpp Line: 51)
+
+AI Thread Finished
+ 
+(Filename: C:/buildslave/unity/build/artifacts/generated/common/runtime/DebugBindings.gen.cpp Line: 51)
+
+Tried ending AI thread in state Finished
+ 
+(Filename: C:/buildslave/unity/build/artifacts/generated/common/runtime/DebugBindings.gen.cpp Line: 51)
+
+AI Thread Started
+ 
+(Filename: C:/buildslave/unity/build/artifacts/generated/common/runtime/DebugBindings.gen.cpp Line: 51)
+
+AI Thread Finished
+ 
+(Filename: C:/buildslave/unity/build/artifacts/generated/common/runtime/DebugBindings.gen.cpp Line: 51)
+
+Tried ending AI thread in state Finished
+ 
+(Filename: C:/buildslave/unity/build/artifacts/generated/common/runtime/DebugBindings.gen.cpp Line: 51)
+

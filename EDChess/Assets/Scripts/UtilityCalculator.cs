@@ -27,9 +27,15 @@ public static class UtilityCalculator {
 	
     public static double CalculateUtility(this IGameBoardState gbs)
     {
-        int p1score = gbs.GetAlivePieces().Where(alive => alive.GetPlayer() == Player.PlayerNumber.Player1).Select(alive => ValueMap[alive.GetPieceType()]).Sum();
-        int p2score = gbs.GetAlivePieces().Where(alive => alive.GetPlayer() == Player.PlayerNumber.Player2).Select(alive => ValueMap[alive.GetPieceType()]).Sum();
+        int p1score = gbs.CalculateRawScore(Player.PlayerNumber.Player1);
+        int p2score = gbs.CalculateRawScore(Player.PlayerNumber.Player2);
+
         return (double)(p1score - p2score) / (double)MaxRawScore(gbs.GetNumLevels());
+    }
+
+    public static int CalculateRawScore(this IGameBoardState gbs, Player.PlayerNumber player)
+    {
+        return gbs.GetAlivePieces().Where(alive => alive.GetPlayer() == player).Select(alive => ValueMap[alive.GetPieceType()]).Sum();
     }
 
     private static int MaxRawScore(int numlevels)

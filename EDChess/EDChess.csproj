@@ -101,6 +101,7 @@
     <Compile Include="Assets\Scripts\IPieceState.cs" />
     <Compile Include="Assets\Scripts\ISpaceState.cs" />
     <Compile Include="Assets\Scripts\Level.cs" />
+    <Compile Include="Assets\Scripts\MainMenuEvent.cs" />
     <Compile Include="Assets\Scripts\Move.cs" />
     <Compile Include="Assets\Scripts\MoveGenerator.cs" />
     <Compile Include="Assets\Scripts\NamedMaterial.cs" />
@@ -111,6 +112,7 @@
     <Compile Include="Assets\Scripts\SpaceState.cs" />
     <Compile Include="Assets\Scripts\SquareButton.cs" />
     <Compile Include="Assets\Scripts\Sun.cs" />
+    <Compile Include="Assets\Scripts\TechnicolorText.cs" />
     <Compile Include="Assets\Scripts\UIController.cs" />
     <Compile Include="Assets\Scripts\UtilityCalculator.cs" />
   </ItemGroup>

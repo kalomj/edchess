@@ -35,11 +35,12 @@ public static class AIMinMax
 {
     public static int LevelsSearched = 0;
     public static long StatesSearched = 0;
+    public static long MovesSearched = 0;
 
     public static AIMinMaxJobStatus jobStatus = AIMinMaxJobStatus.None;
     public static Thread jobThread;
     private static AIMinMaxResult jobResult;
-    private static object jobLock = new object();
+    public static object jobLock = new object();
 
     private static System.Random rng = new System.Random();
 
@@ -71,7 +72,19 @@ public static class AIMinMax
     {
         Move BestMove = null;
 
-        //cutoff for search (recursive base case)
+        double checkWinner = gbs.CheckWinner();
+
+        //cutoff for search (recursive base cases)
+        if(checkWinner == -1.0)
+        {
+            return new AIMinMaxResult(BestMove, -1.0, 1);
+        }
+
+        if (checkWinner == 1.0)
+        {
+            return new AIMinMaxResult(BestMove, 1.0, 1);
+        }
+
         if (searchLevels == 0)
         {
             return new AIMinMaxResult(BestMove,gbs.CalculateUtility(),1);
@@ -92,6 +105,8 @@ public static class AIMinMax
             {
                 moves = MoveGenerator.GetMoves(gbs, piece);
             }
+
+            MovesSearched += moves.Count;
 
             //perform each move on a cloned board and search clone recursively, swapping players each turn
             foreach (Move move in moves.Shuffle())
@@ -162,6 +177,46 @@ public static class AIMinMax
         return new AIMinMaxResult(BestMove, result.AlphaBeta, statesSearched);
     }
 
+    /// <summary>
+    /// Returns 1 if player 1 is a winner, -1 if player 2 is a winner, and 0 if it is not a win state
+    /// </summary>
+    /// <param name="gbs"></param>
+    /// <returns></returns>
+    public static double CheckWinner(this IGameBoardState gbs)
+    {
+        int p1Count = 0;
+        int p2Count = 0;
+
+        foreach (IPieceState piece in gbs.GetAlivePieces())
+        {
+            if (piece.GetPlayer() == Player.PlayerNumber.Player1 && piece.GetPieceType() == Piece.PieceType.king)
+            {
+                p1Count++;
+            }
+            else if (piece.GetPlayer() == Player.PlayerNumber.Player2 && piece.GetPieceType() == Piece.PieceType.king)
+            {
+                p2Count++;
+            }
+        }
+
+        if(p1Count == 0 && p2Count == 0)
+        {
+            throw new System.Exception("Game should end as soon as one player reaches 0 kings.");
+        }
+        else if(p1Count == 0)
+        {
+            return -1.0;
+        }
+        else if(p2Count == 0)
+        {
+            return 1.0;
+        }
+        else
+        {
+            return 0.0;
+        }
+    }
+
     public static void AIMinMaxSearchAsyncBegin(this IGameBoardState gbs, int searchLevels, Player.PlayerNumber currentPlayer)
     {
         if(jobStatus != AIMinMaxJobStatus.None)
@@ -172,6 +227,7 @@ public static class AIMinMax
         jobStatus = AIMinMaxJobStatus.Started;
         LevelsSearched = 0;
         StatesSearched = 0;
+        MovesSearched = 0;
         Debug.Log("AI Thread Started");
 
         //clone gameboardstate to ensure it is not a MonoBehavior - we need to pass it to a new thread
@@ -182,7 +238,9 @@ public static class AIMinMax
             ///must run at least one level to complete
             jobResult = gbs_clone.AIMinMaxSearch(1, currentPlayer);
             LevelsSearched++;
-            for (int i = 2; i <= searchLevels; i++)
+            //code is in an iterative deepening pattern, but I is initialized to the deepest level for testing
+            //usually i should start at 2 and iterate forward
+            for (int i = searchLevels; i <= searchLevels; i++)
             {
                 AIMinMaxResult res = gbs_clone.AIMinMaxSearch(i, currentPlayer);
                 
@@ -232,6 +290,23 @@ public static class AIMinMax
         jobStatus = AIMinMaxJobStatus.None;
 
         return jobResult;
+    }
+
+    public static void JoinThreads()
+    {
+        if(jobThread != null)
+        {
+            lock (jobLock)
+            {
+                if (jobStatus != AIMinMaxJobStatus.Finished)
+                {
+                    jobStatus = AIMinMaxJobStatus.StopRequested;
+                }
+            }
+
+            jobThread.Join();
+            jobStatus = AIMinMaxJobStatus.None;
+        }
     }
 
     public static void AiMinMaxSearchAsyncStopRequest(this IGameBoardState gbs)

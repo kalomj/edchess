@@ -9,10 +9,14 @@ public class UIController : MonoBehaviour {
     public GameObject DebugPanel;
     public GameObject GameStats;
     public GameObject Board2D;
+    public GameObject AIStats;
+    public GameObject MainMenu;
 
     bool toggleDebugPanel = false;
     bool toggleGameStats = false;
     bool toggleBoard2D = false;
+    bool toggleAIStats = false;
+    bool toggleMainMenu = false;
 
     public Sprite BlankSprite;
     public Sprite PawnSprite;
@@ -89,6 +93,7 @@ public class UIController : MonoBehaviour {
     // Use this for initialization
     void Start () {
         DebugPanel.SetActive(false);
+        MainMenu.SetActive(false);
 
         Image[] images = Board2D.GetComponentsInChildren<Image>();
         foreach(Image i in images)
@@ -104,11 +109,13 @@ public class UIController : MonoBehaviour {
         PieceSprites.Add(Piece.PieceType.rook, RookSprite);
 
         Board2D.SetActive(false);
+        AIStats.SetActive(true);
 	}
-	
-	// Update is called once per frame
-	void Update () {
-		if(Input.GetKeyDown(KeyCode.D))
+
+    // Update is called once per frame
+    void Update()
+    {
+        if (Input.GetKeyDown(KeyCode.D))
         {
             toggleDebugPanel = true;
         }
@@ -120,9 +127,16 @@ public class UIController : MonoBehaviour {
         {
             toggleBoard2D = true;
         }
+        if (Input.GetKeyDown(KeyCode.A))
+        {
+            toggleAIStats = true;
+        }
+        if(Input.GetKeyDown(KeyCode.Escape))
+        {
+            toggleMainMenu = true;
+        }
     }
-
-    void OnGUI()
+        void OnGUI()
     {
         if(toggleDebugPanel)
         {
@@ -140,6 +154,19 @@ public class UIController : MonoBehaviour {
         {
             Board2D.SetActive(!Board2D.activeSelf);
             toggleBoard2D = false;
+        }
+
+        if(toggleAIStats)
+        {
+            AIStats.SetActive(!AIStats.activeSelf);
+            toggleAIStats = false;
+        }
+
+        if(toggleMainMenu)
+        {
+            game.Paused = !game.Paused;
+            MainMenu.SetActive(!MainMenu.activeSelf);
+            toggleMainMenu = false;
         }
     }
 
