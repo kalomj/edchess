@@ -2,11 +2,14 @@
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.SceneManagement;
+using DG.Tweening;
 
 public class Game : MonoBehaviour {
 
     public Player player1;
     public Player player2;
+    public Player currentPlayer;
+    private Player[] players;
     public GameBoard gameBoard;
     public Camera mainCamera;
     public UIController uiController;
@@ -23,10 +26,11 @@ public class Game : MonoBehaviour {
 
     public bool RestartScene = false;
 
-
     // Use this for initialization
     void Start () {
         StartCoroutine(MovePieceEvent());
+        players = new Player[] { player1, player2 };
+
     }
 	
 	// Update is called once per frame
@@ -36,65 +40,87 @@ public class Game : MonoBehaviour {
 
     private IEnumerator MovePieceEvent()
     {
-        AIMinMaxResult aiResult;
+        AIMinMaxResult aiResult = null;
+        Move nextMove = null;
         yield return new WaitForSeconds(1f);
         while (true)
         {
-
-            //start thinking asyncronously
-            gameBoard.AIMinMaxSearchAsyncBegin(AIThoughtDepth+3, Player.PlayerNumber.Player1);
-            //a player can think about his move for as long as it takes his opponent's move to animate
-            while (AIMinMax.jobStatus == AIMinMaxJobStatus.Started || AIMinMax.jobStatus == AIMinMaxJobStatus.StopRequested)
+            foreach (Player p in players)
             {
-                
-                yield return new WaitForSeconds(MoveTime);
-                if(AIMinMax.jobStatus == AIMinMaxJobStatus.Started && AIMinMax.StatesSearched > MaxStatesToSearch)
+                //render the gameboard to the 2d representation
+                uiController.RenderBoard(gameBoard);
+
+                currentPlayer = p;
+                currentPlayer.playerState = Player.PlayerState.Thinking;
+
+                StartCoroutine(uiController.FadeText(uiController.PlayerTurnText, "Go " + currentPlayer.playerNumber.ToString() + "!", currentPlayer.PieceTint));
+
+                if (currentPlayer.playerType == Player.PlayerType.Computer)
                 {
-                    gameBoard.AiMinMaxSearchAsyncStopRequest();
-                    
+                    //start thinking asyncronously
+                    gameBoard.AIMinMaxSearchAsyncBegin(currentPlayer.AIThoughtDepth, currentPlayer.playerNumber);
+
+                    while (AIMinMax.jobStatus == AIMinMaxJobStatus.Started || AIMinMax.jobStatus == AIMinMaxJobStatus.StopRequested)
+                    {
+                        yield return new WaitForSeconds(MoveTime);
+                        if (AIMinMax.jobStatus == AIMinMaxJobStatus.Started && AIMinMax.StatesSearched > MaxStatesToSearch)
+                        {
+                            gameBoard.AiMinMaxSearchAsyncStopRequest();
+
+                        }
+                    }
+                    //finish thinking and get the move
+                    aiResult = gameBoard.AIMinMaxSearchAsyncEnd();
+                    lastResult = aiResult;
+                    nextMove = aiResult.Move;
+                    currentPlayer.selectedMove = aiResult.Move;
+                    currentPlayer.playerState = Player.PlayerState.Moving;
                 }
-            }
-            //finish thinking and get the move
-            aiResult = gameBoard.AIMinMaxSearchAsyncEnd();
-            lastResult = aiResult;
-            //this is the best place to stop if the game should be paused for testing
+                else if(currentPlayer.playerType == Player.PlayerType.Human)
+                {
+                    while(currentPlayer.playerState == Player.PlayerState.Thinking)
+                    {
+                        yield return new WaitForSeconds(MoveTime);
 
-            while (Paused)
-            {
-                yield return new WaitForSeconds(MoveTime);
-            }
+                        if(currentPlayer.playerType == Player.PlayerType.Computer)
+                        {
+                            //start thinking asyncronously
+                            gameBoard.AIMinMaxSearchAsyncBegin(currentPlayer.AIThoughtDepth, currentPlayer.playerNumber);
 
-            gameBoard.Move(aiResult.Move);
-            
-            //render the gameboard to the 2d representation
-            uiController.RenderBoard(gameBoard);
+                            while (AIMinMax.jobStatus == AIMinMaxJobStatus.Started || AIMinMax.jobStatus == AIMinMaxJobStatus.StopRequested)
+                            {
+                                yield return new WaitForSeconds(MoveTime);
+                                if (AIMinMax.jobStatus == AIMinMaxJobStatus.Started && AIMinMax.StatesSearched > MaxStatesToSearch)
+                                {
+                                    gameBoard.AiMinMaxSearchAsyncStopRequest();
 
-            if (CheckGameOver())
-            {
-                yield break;
-            }
+                                }
+                            }
+                            //finish thinking and get the move
+                            aiResult = gameBoard.AIMinMaxSearchAsyncEnd();
+                            lastResult = aiResult;
+                            nextMove = aiResult.Move;
+                            currentPlayer.selectedMove = aiResult.Move;
+                            currentPlayer.playerState = Player.PlayerState.Moving;
+                        }
+                    }
 
-            //Do it again for player 2, without the comments. Not a subroutine because you can't refactor a yield to a subroutine
+                    nextMove = currentPlayer.selectedMove;
+                }
 
-            gameBoard.AIMinMaxSearchAsyncBegin(AIThoughtDepth, Player.PlayerNumber.Player2);
-            while (AIMinMax.jobStatus == AIMinMaxJobStatus.Started)
-            {
-                
-                yield return new WaitForSeconds(MoveTime);
-            }
-            aiResult = gameBoard.AIMinMaxSearchAsyncEnd();
+                //this is the best place to stop if the game should be paused
+                while (Paused)
+                {
+                    yield return new WaitForSeconds(MoveTime);
+                }
 
-            lastResult = aiResult;
-            while (Paused)
-            {
-                yield return new WaitForSeconds(MoveTime);
-            }
-            gameBoard.Move(aiResult.Move);
-            uiController.RenderBoard(gameBoard);
+                gameBoard.Move(nextMove);
+                currentPlayer.playerState = Player.PlayerState.Waiting;
 
-            if (CheckGameOver())
-            {
-                yield break;
+                if (CheckGameOver())
+                {
+                    yield break;
+                }
             }
         }
     }
@@ -104,7 +130,6 @@ public class Game : MonoBehaviour {
         if (RestartScene)
         {
             AIMinMax.JoinThreads();
-
 
             SceneManager.LoadScene(SceneManager.GetActiveScene().name);
         }
@@ -179,5 +204,24 @@ public class Game : MonoBehaviour {
         piece.space.AnimateShell(MoveTime, Color.red);
         StartCoroutine(HighlightMoves(moves));
         return moves[sysRandom.Next(0,moves.Count)];
+    }
+
+    bool flying = false;
+
+    public IEnumerator CenterCameraOnPiece(Piece piece)
+    {
+        if(!flying)
+        {
+            flying = true;
+            Vector3 pieceVector = piece.transform.position;
+            pieceVector.z = pieceVector.z + 10;
+            pieceVector.x = pieceVector.x + 5;
+            mainCamera.transform.DOMove(pieceVector, 1f);
+            yield return new WaitForSeconds(1f);
+            mainCamera.transform.DOLookAt(piece.transform.position, 1f);
+            yield return new WaitForSeconds(1f);
+            flying = false;
+        }
+        
     }
 }

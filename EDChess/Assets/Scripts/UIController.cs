@@ -11,12 +11,14 @@ public class UIController : MonoBehaviour {
     public GameObject Board2D;
     public GameObject AIStats;
     public GameObject MainMenu;
+    public GameObject ShortcutMenu;
+    public GameObject PlayerTurnText;
 
-    bool toggleDebugPanel = false;
-    bool toggleGameStats = false;
-    bool toggleBoard2D = false;
-    bool toggleAIStats = false;
-    bool toggleMainMenu = false;
+    public bool toggleDebugPanel = false;
+    public bool toggleGameStats = false;
+    public bool toggleBoard2D = false;
+    public bool toggleAIStats = false;
+    public bool toggleMainMenu = false;
 
     public Sprite BlankSprite;
     public Sprite PawnSprite;
@@ -110,6 +112,7 @@ public class UIController : MonoBehaviour {
 
         Board2D.SetActive(false);
         AIStats.SetActive(true);
+        PlayerTurnText.SetActive(false);
 	}
 
     // Update is called once per frame
@@ -166,6 +169,7 @@ public class UIController : MonoBehaviour {
         {
             game.Paused = !game.Paused;
             MainMenu.SetActive(!MainMenu.activeSelf);
+            MainMenu.GetComponent<MainMenuEvent>().StartState();
             toggleMainMenu = false;
         }
     }
@@ -211,34 +215,41 @@ public class UIController : MonoBehaviour {
 
     public void SquareClickEvent(int level, int row, int col)
     {
-        ISpaceState s = game.gameBoard.GetSpace(level, row, col);
-        bool moved = false;
-        if (moveTargets != null)
+        if(game.currentPlayer.playerType == Player.PlayerType.Human)
         {
-            foreach(Move m in moveTargets)
+            ISpaceState s = game.gameBoard.GetSpace(level, row, col);
+            bool moved = false;
+            if (moveTargets != null)
             {
-                if(m.space == s)
+                foreach (Move m in moveTargets)
                 {
-                    game.gameBoard.Move(m);
-                    RenderBoard(game.gameBoard);
-                    moved = true;
-                    break;
+                    if (m.space == s)
+                    {
+                        game.currentPlayer.selectedMove = m;
+                        game.currentPlayer.playerState = Player.PlayerState.Moving;
+
+                        moved = true;
+
+                        break;
+                    }
                 }
+                moveTargets = null;
             }
-            moveTargets = null;
-        }
 
-        ResetButtonHighlights();
+            ResetButtonHighlights();
 
-        if(s.IsOccupied() && !moved)
-        {
-            moveTargets = MoveGenerator.GetMoves(game.gameBoard, s.Occupier());
-            foreach(Move m in moveTargets)
+            if (s.IsOccupied() && !moved && s.Occupier().GetPlayer() == game.currentPlayer.playerNumber)
             {
-                squareLookup[m.space.GetLevel()][m.space.GetRow()][m.space.GetCol()].color = Color.cyan;
-            }
+                StartCoroutine(game.CenterCameraOnPiece((Piece)s.Occupier()));
 
-            StartCoroutine(game.HighlightMoves(moveTargets, 3f));
+                moveTargets = MoveGenerator.GetMoves(game.gameBoard, s.Occupier());
+                foreach (Move m in moveTargets)
+                {
+                    squareLookup[m.space.GetLevel()][m.space.GetRow()][m.space.GetCol()].color = Color.cyan;
+                }
+
+                StartCoroutine(game.HighlightMoves(moveTargets, 3f));
+            }
         }
     }
 
@@ -264,5 +275,16 @@ public class UIController : MonoBehaviour {
                 }
             }
         }
+    }
+
+    public IEnumerator FadeText(GameObject textObject, string message, Color color)
+    {
+        Text text = textObject.GetComponent<Text>();
+        text.text = message;
+        text.color = color;
+        textObject.SetActive(true);
+        text.color = new Color(text.color.r, text.color.g, text.color.b, 1.0f);
+        yield return new WaitForSeconds(2f);
+        textObject.SetActive(false);
     }
 }

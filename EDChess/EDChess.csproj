@@ -108,6 +108,7 @@
     <Compile Include="Assets\Scripts\Piece.cs" />
     <Compile Include="Assets\Scripts\PieceState.cs" />
     <Compile Include="Assets\Scripts\Player.cs" />
+    <Compile Include="Assets\Scripts\ShortcutPanelEvents.cs" />
     <Compile Include="Assets\Scripts\Space.cs" />
     <Compile Include="Assets\Scripts\SpaceState.cs" />
     <Compile Include="Assets\Scripts\SquareButton.cs" />
