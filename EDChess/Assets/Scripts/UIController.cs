@@ -240,7 +240,7 @@ public class UIController : MonoBehaviour {
 
             if (s.IsOccupied() && !moved && s.Occupier().GetPlayer() == game.currentPlayer.playerNumber)
             {
-                StartCoroutine(game.CenterCameraOnPiece((Piece)s.Occupier()));
+                game.gameBoard.GetPiece(s.Occupier()).ZoomToPiece();
 
                 moveTargets = MoveGenerator.GetMoves(game.gameBoard, s.Occupier());
                 foreach (Move m in moveTargets)
@@ -248,7 +248,6 @@ public class UIController : MonoBehaviour {
                     squareLookup[m.space.GetLevel()][m.space.GetRow()][m.space.GetCol()].color = Color.cyan;
                 }
 
-                StartCoroutine(game.HighlightMoves(moveTargets, 3f));
             }
         }
     }

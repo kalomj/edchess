@@ -280,4 +280,13 @@ public class GameBoard : MonoBehaviour, IGameBoardState {
     {
         return this.CreateGameBoardState();
     }
+
+    public Piece GetPiece(IPieceState pieceState)
+    {
+        ISpaceState iss_source = pieceState.GetSpaceState();
+
+        Space space = this.GetSpace(iss_source.GetLevel(), iss_source.GetRow(), iss_source.GetCol());
+
+        return space.occupier;
+    }
 }

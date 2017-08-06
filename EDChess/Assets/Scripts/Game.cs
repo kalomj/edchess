@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 using DG.Tweening;
-
+using UnityEngine.UI;
 public class Game : MonoBehaviour {
 
     public Player player1;
@@ -43,22 +43,42 @@ public class Game : MonoBehaviour {
         AIMinMaxResult aiResult = null;
         Move nextMove = null;
         yield return new WaitForSeconds(1f);
+
+        //render the gameboard to the 2d representation
+        uiController.RenderBoard(gameBoard);
+
         while (true)
         {
             foreach (Player p in players)
             {
-                //render the gameboard to the 2d representation
-                uiController.RenderBoard(gameBoard);
-
+                
                 currentPlayer = p;
                 currentPlayer.playerState = Player.PlayerState.Thinking;
 
                 StartCoroutine(uiController.FadeText(uiController.PlayerTurnText, "Go " + currentPlayer.playerNumber.ToString() + "!", currentPlayer.PieceTint));
 
+                if (currentPlayer.playerType == Player.PlayerType.Human)
+                {
+                    while (currentPlayer.playerState == Player.PlayerState.Thinking)
+                    {
+                        yield return new WaitForSeconds(MoveTime);
+
+                        if (currentPlayer.playerType == Player.PlayerType.Computer)
+                        {
+                            break;
+                        }
+                    }
+
+                    if (currentPlayer.playerType == Player.PlayerType.Human)
+                    {
+                        nextMove = currentPlayer.selectedMove;
+                    }
+                }
+
                 if (currentPlayer.playerType == Player.PlayerType.Computer)
                 {
                     //start thinking asyncronously
-                    gameBoard.AIMinMaxSearchAsyncBegin(currentPlayer.AIThoughtDepth, currentPlayer.playerNumber);
+                    gameBoard.AIMinMaxSearchAsyncBegin(currentPlayer.AIThoughtDepth+1, currentPlayer.playerNumber);
 
                     while (AIMinMax.jobStatus == AIMinMaxJobStatus.Started || AIMinMax.jobStatus == AIMinMaxJobStatus.StopRequested)
                     {
@@ -73,39 +93,10 @@ public class Game : MonoBehaviour {
                     aiResult = gameBoard.AIMinMaxSearchAsyncEnd();
                     lastResult = aiResult;
                     nextMove = aiResult.Move;
+                    gameBoard.GetPiece(nextMove.piece).ZoomToPiece();
+                    yield return new WaitForSeconds(1f);
                     currentPlayer.selectedMove = aiResult.Move;
                     currentPlayer.playerState = Player.PlayerState.Moving;
-                }
-                else if(currentPlayer.playerType == Player.PlayerType.Human)
-                {
-                    while(currentPlayer.playerState == Player.PlayerState.Thinking)
-                    {
-                        yield return new WaitForSeconds(MoveTime);
-
-                        if(currentPlayer.playerType == Player.PlayerType.Computer)
-                        {
-                            //start thinking asyncronously
-                            gameBoard.AIMinMaxSearchAsyncBegin(currentPlayer.AIThoughtDepth, currentPlayer.playerNumber);
-
-                            while (AIMinMax.jobStatus == AIMinMaxJobStatus.Started || AIMinMax.jobStatus == AIMinMaxJobStatus.StopRequested)
-                            {
-                                yield return new WaitForSeconds(MoveTime);
-                                if (AIMinMax.jobStatus == AIMinMaxJobStatus.Started && AIMinMax.StatesSearched > MaxStatesToSearch)
-                                {
-                                    gameBoard.AiMinMaxSearchAsyncStopRequest();
-
-                                }
-                            }
-                            //finish thinking and get the move
-                            aiResult = gameBoard.AIMinMaxSearchAsyncEnd();
-                            lastResult = aiResult;
-                            nextMove = aiResult.Move;
-                            currentPlayer.selectedMove = aiResult.Move;
-                            currentPlayer.playerState = Player.PlayerState.Moving;
-                        }
-                    }
-
-                    nextMove = currentPlayer.selectedMove;
                 }
 
                 //this is the best place to stop if the game should be paused
@@ -114,7 +105,15 @@ public class Game : MonoBehaviour {
                     yield return new WaitForSeconds(MoveTime);
                 }
 
+                Piece movedPiece = gameBoard.GetPiece(nextMove.piece);
                 gameBoard.Move(nextMove);
+                movedPiece.ZoomToPiece(true);
+                //render the gameboard to the 2d representation
+                uiController.RenderBoard(gameBoard);
+
+                yield return new WaitForSeconds(2f);
+
+
                 currentPlayer.playerState = Player.PlayerState.Waiting;
 
                 if (CheckGameOver())
@@ -154,6 +153,9 @@ public class Game : MonoBehaviour {
 
         if(p1Count == 0 || p2Count == 0)
         {
+            uiController.PlayerTurnText.GetComponent<Text>().text = "Game Over!";
+            uiController.PlayerTurnText.GetComponent<Text>().color = Color.white;
+            uiController.PlayerTurnText.SetActive(true);
             return true;
         }
 
@@ -214,12 +216,23 @@ public class Game : MonoBehaviour {
         {
             flying = true;
             Vector3 pieceVector = piece.transform.position;
-            pieceVector.z = pieceVector.z + 10;
-            pieceVector.x = pieceVector.x + 5;
+            pieceVector.z = pieceVector.z + 7;
+
+            if(piece.player.playerNumber == Player.PlayerNumber.Player1)
+            {
+                pieceVector.x = pieceVector.x + 3;
+            }
+            else
+            {
+                pieceVector.x = pieceVector.x - 3;
+            }
+
             mainCamera.transform.DOMove(pieceVector, 1f);
+            Vector3 direction = piece.transform.position - pieceVector;
+            Quaternion quat = Quaternion.LookRotation(direction);
+            mainCamera.transform.DORotate(quat.eulerAngles, 1f);
             yield return new WaitForSeconds(1f);
-            mainCamera.transform.DOLookAt(piece.transform.position, 1f);
-            yield return new WaitForSeconds(1f);
+            piece.space.AnimateShell(1f, Color.white);
             flying = false;
         }
         

@@ -20,6 +20,8 @@ public class Piece : MonoBehaviour, IPieceState {
 
     public bool alive = true;
 
+    public Game game;
+
     public bool Alive
     {
         get
@@ -94,5 +96,28 @@ public class Piece : MonoBehaviour, IPieceState {
     Color IPieceState.GetPieceTint()
     {
         return player.PieceTint;
+    }
+
+    public void OnMouseDown()
+    {
+        if (!game.uiController.Board2D.activeSelf && !game.uiController.MainMenu.activeSelf)
+        {
+            ZoomToPiece();
+        }
+    }
+
+    public void ZoomToPiece(bool suppress = false)
+    {
+        
+        StartCoroutine(game.CenterCameraOnPiece(this));
+
+        if(!suppress)
+        {
+            List<Move> moveTargets = MoveGenerator.GetMoves(game.gameBoard, this);
+
+            StartCoroutine(game.HighlightMoves(moveTargets, 1f));
+        }
+
+        
     }
 }
